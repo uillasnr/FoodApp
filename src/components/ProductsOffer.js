@@ -32,8 +32,7 @@ export default function ProductsOffer() {
   }, []);
 
   const handleProductPress = (product) => {
-    console.log("carrinho de compras", product);
-    /*  navigation.navigate("ProductDetails", { productId: product.id }); */
+      navigation.navigate("ProductDetails", { productId: product.id }); 
   };
 
   return (
