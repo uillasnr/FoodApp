@@ -29,13 +29,14 @@ export default function Category() {
   }, []);
 
   const handleCategoryPress = (category) => {
-    navigation.navigate("ProductDetails", { categoryId: category.id });
+    navigation.navigate("Products", { categoryId: category.id });
   };
 
   return (
     <View style={styles.container}>
       <FlatList
         horizontal
+        showsHorizontalScrollIndicator={false}
         data={categories}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
