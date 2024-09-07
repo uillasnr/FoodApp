@@ -5,7 +5,7 @@ import { restaurantes } from "../dados";
 import CardRestaurant from "../components/CardRestaurant";
 
 export default function ScreenFavorites() {
-  const vazio = [];
+ 
   return (
     <View style={styles.container}>
       {restaurantes.length > 0 ? (
@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Color.COLORS.white,
-    padding: 12,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
   empty: {
     flex: 1,
