@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import Color from "../styles/Color";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Product(props) {
   return (
@@ -19,6 +20,15 @@ export default function Product(props) {
             currency: "BRL",
           }).format(props.valor)}
         </Text>
+
+        {props.showDeleteButton && (
+          <TouchableOpacity
+            style={styles.delete}
+            onPress={() => props.onClickDelete()}
+          >
+            <Ionicons name="trash-bin" size={28} color={Color.COLORS.red} />
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -54,6 +64,10 @@ const styles = StyleSheet.create({
   value: {
     fontSize: Color.FONT_SIZE.sm,
     color: Color.COLORS.dark_gray,
+    marginTop: 8,
+  },
+  delete: {
+    alignItems: "flex-end",
     marginTop: 8,
   },
 });
