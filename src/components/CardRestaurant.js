@@ -7,15 +7,16 @@ import {
   View,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Color from "../styles/Color";
 
-export default CardRestaurant = ({ restaurantes }) => {
+export default CardRestaurant = ({ restaurantes, isFavorites, onPress }) => {
   return (
     <ScrollView showsHorizontalScrollIndicator={false}>
       {restaurantes.map((restaurant, index) => (
         <View key={index}>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={() => onPress(restaurant)}>
 
             <Image source={restaurant.logotipo} style={styles.logotipo} />
             <View style={styles.text}>
@@ -24,7 +25,11 @@ export default CardRestaurant = ({ restaurantes }) => {
             </View>
 
             <TouchableOpacity>
-              <AntDesign name="heart" size={30} color={Color.COLORS.red} />
+            {isFavorites ? (
+                <Ionicons name="trash-bin-sharp" size={30} color={Color.COLORS.red} />
+              ) : (
+                <AntDesign name="heart" size={30} color={Color.COLORS.red} />
+              )}
             </TouchableOpacity>
 
           </TouchableOpacity>
@@ -37,8 +42,8 @@ export default CardRestaurant = ({ restaurantes }) => {
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: 5,
+    marginTop: 5,
     backgroundColor:Color.COLORS.light_gray,
     width: "100%",
     height: 90,
