@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -5,15 +6,32 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { getBanner } from "../services/api";
 
-export default Banners = ({ banners }) => {
+export default Banners = () => {
+  const [banners, setBanners] = useState([]);
+
+  useEffect(() => {
+    const loadBanners = async () => {
+      try {
+        const data = await getBanner();
+
+        setBanners(data);
+      } catch (error) {
+        console.error("Error loading Banners", error);
+      }
+    };
+
+    loadBanners();
+  }, []);
+
   return (
     <View>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         {banners.map((banner, index) => (
           <View key={index} style={styles.banner}>
             <TouchableOpacity>
-              <Image source={banner.icone} style={styles.icone} />
+              <Image source={{ uri: banner.icon }} style={styles.icone} />
             </TouchableOpacity>
           </View>
         ))}
@@ -25,7 +43,6 @@ export default Banners = ({ banners }) => {
 const styles = StyleSheet.create({
   banner: {
     paddingRight: 10,
-    marginTop: 15,
     marginBottom: 15,
   },
   icone: {
