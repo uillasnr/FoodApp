@@ -7,29 +7,28 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import COLORS from "../styles/Color";
-import api from "../services/api";
+import { getCategory } from "../services/api";
+import THEMES from "../styles/themes";
 
-export default function Category() {
+export default function Category({ onCategoryPress }) {
   const [categories, setCategories] = useState([]);
-  const navigation = useNavigation();
 
   useEffect(() => {
-    async function loadCategories() {
+    const loadCategories = async () => {
       try {
-        const { data } = await api.get("categories");
+        const data = await getCategory();
+
         setCategories(data);
       } catch (error) {
-        console.error("Falha ao buscar categorias:", error);
+        console.error("Error loading categories", error);
       }
-    }
+    };
 
     loadCategories();
   }, []);
 
   const handleCategoryPress = (category) => {
-    navigation.navigate("Products", { categoryId: category.id });
+    onCategoryPress("", category.category_id, ""); 
   };
 
   return (
@@ -38,14 +37,14 @@ export default function Category() {
         horizontal
         showsHorizontalScrollIndicator={false}
         data={categories}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.category_id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
             onPress={() => handleCategoryPress(item)}
           >
-            <Image source={{ uri: item.url }} style={styles.image} />
-            <Text style={styles.text}>{item.name}</Text>
+            <Image source={{ uri: item.icon }} style={styles.image} />
+            <Text style={styles.text}>{item.category}</Text>
           </TouchableOpacity>
         )}
       />
@@ -55,13 +54,14 @@ export default function Category() {
 
 const styles = StyleSheet.create({
   container: {
-    height: 90,
+    marginBottom: 0,
   },
   card: {
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10,
     width: 150,
     height: 50,
-    backgroundColor: COLORS.grey,
+    backgroundColor: THEMES.light.colors.light_gray,
     borderRadius: 30,
     padding: 5,
     marginHorizontal: 5,
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
-      width: 0,
+      width: 2,
       height: 2,
     },
     shadowOpacity: 0.25,
@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
     height: 40,
     resizeMode: "cover",
     borderRadius: 50,
-    backgroundColor: "white",
+    backgroundColor: THEMES.light.colors.gray,
   },
   text: {
-    fontSize: 15,
+    fontSize: THEMES.light.FONT_SIZE.sm,
     fontWeight: "bold",
-    color: COLORS.light,
+    color: THEMES.light.colors.dark_gray,
     marginLeft: 10,
   },
 });
