@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TextInput } from "react-native";
-import Color from "../styles/Color";
+import THEMES from "../styles/themes";
 
 export default Input = (props) => {
   return (
@@ -20,15 +20,15 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     alignItems: "center",
-    backgroundColor: Color.COLORS.light_gray,
+    backgroundColor: THEMES.light.colors.light_gray,
     padding: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: Color.COLORS.gray,
+    borderColor: THEMES.light.colors.gray,
   },
   label: {
     marginLeft: 5,
-    color: Color.COLORS.dark_gray,
-    fontSize: Color.FONT_SIZE.md,
+    color: THEMES.light.colors.dark_gray,
+    fontSize: THEMES.light.FONT_SIZE.md,
   },
 });
