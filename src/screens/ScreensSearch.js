@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, } from "react-native";
 import CardRestaurant from "../components/CardRestaurant";
 import THEMES from "../styles/themes";
 import Loading from "../components/Loading";
 import { addFavoriteRestaurant, deleteFavoriteRestaurant } from "../services/api";
 
-export default function ScreensSearch({ route}) {
+export default function ScreensSearch({ route }) {
   const [loading, setLoading] = useState(false);
   const [filteredRestaurants, setFilteredRestaurants] = useState(route.params?.filteredRestaurants || []);
-
 
   const handleFavoriteAdd = async (id_company) => {
     await addFavoriteRestaurant(id_company);
@@ -18,7 +17,6 @@ export default function ScreensSearch({ route}) {
       )
     );
   };
-
 
   const handleFavoriteRemove = async (id_company) => {
     await deleteFavoriteRestaurant(id_company);
@@ -38,7 +36,7 @@ export default function ScreensSearch({ route}) {
       {filteredRestaurants && filteredRestaurants.length > 0 ? (
         <FlatList
           data={filteredRestaurants}
-          keyExtractor={(restaurant) => restaurant.id}
+          keyExtractor={(restaurant) => restaurant.id_company.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <CardRestaurant
