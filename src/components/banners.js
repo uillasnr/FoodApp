@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { getBanner } from "../services/api";
 
-export default Banners = () => {
+export default Banners = ({onBannerPress}) => {
   const [banners, setBanners] = useState([]);
 
   useEffect(() => {
@@ -25,12 +25,16 @@ export default Banners = () => {
     loadBanners();
   }, []);
 
+  const handleBannerPress = (banner) => {
+    onBannerPress("", "", banner.banner_id);
+  };
+
   return (
     <View>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         {banners.map((banner, index) => (
           <View key={index} style={styles.banner}>
-            <TouchableOpacity>
+            <TouchableOpacity  onPress={() => handleBannerPress(banner)}>
               <Image source={{ uri: banner.icon }} style={styles.icone} />
             </TouchableOpacity>
           </View>
