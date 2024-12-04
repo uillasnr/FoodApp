@@ -1,35 +1,44 @@
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import THEMES from "../styles/themes";
 
-import Color from "../styles/Color";
+const CardOrders = (props) => {
+  const dt = new Date(props.order_date);
+  
+  const getStatusStyle = () => {
+    const statusColorMap = {
+      "Cancelado": THEMES.light.colors.red || "#FF4C4C",     
+      "Entregue": THEMES.light.colors.green || "#38C682",     
+      "A caminho": THEMES.light.colors.orange || "#FFA500",    
+      "Preparando": THEMES.light.colors.blue || "#4682B4",     
+    };
+    
+    return { 
+      color: statusColorMap[props.description_status] || THEMES.light.colors.medium_gray 
+    };
+  };
 
-export default CardOrders = (props) => {
   return (
     <ScrollView showsHorizontalScrollIndicator={false}>
       <TouchableOpacity style={styles.card} onPress={() => props.onClickOrders()}>
-        <Image source={props.logotipo} style={styles.logotipo} />
-
-        <View style={styles.conatinerText}>
-          <Text style={styles.nome}>{props.nome}</Text>
-
-          <View style={styles.conatinerValue}>
-            
+        <Image source={{ uri: props.icon }} style={styles.logotipo} />
+        <View style={styles.containerText}>
+          <Text style={styles.nome}>{props.name}</Text>
+          <View style={styles.containerValue}>
             <Text style={styles.value}>
-              {new Intl.NumberFormat("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }).format(props.valor)}
+              {(props.total || 0).toLocaleString("pt-BR", { 
+                style: "currency", 
+                currency: "BRL" 
+              })}
             </Text>
-            <Text style={styles.value}>{props.dt_pedido}</Text>
+            <Text style={styles.value}>{dt.toLocaleDateString("pt-BR", { 
+                style: "currency", 
+                currency: "BRL" 
+              })}</Text>
           </View>
-
-          <Text style={styles.status}>{props.status}</Text>
+          <Text style={[styles.status, getStatusStyle()]}>
+            Pedido: {props.order_id} - {props.description_status}
+          </Text>
         </View>
       </TouchableOpacity>
     </ScrollView>
@@ -37,42 +46,42 @@ export default CardOrders = (props) => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: "row",
-    marginBottom: 5,
-    marginTop: 5,
-    backgroundColor: Color.COLORS.light_gray,
-    width: "100%",
-    height: 90,
-    alignItems: "center",
-    paddingHorizontal: 5,
+  card: { 
+    flexDirection: "row", 
+    marginBottom: 5, 
+    marginTop: 5, 
+    backgroundColor: THEMES.light.colors.light_gray, 
+    width: "100%", 
+    height: 90, 
+    alignItems: "center", 
+    paddingHorizontal: 5, 
     borderRadius: 10,
-    // Sombra
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 4, 
+    elevation: 5, 
   },
-  logotipo: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    resizeMode: "cover",
+  logotipo: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 10, 
+    resizeMode: "cover", 
   },
-  conatinerText: {
-    flex: 1,
-    padding: 8,
+  containerText: { 
+    flex: 1, 
+    padding: 8, 
   },
-  conatinerValue: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  containerValue: { 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
   },
-  value: {
-    color: Color.COLORS.medium_gray,
-    fontSize: Color.FONT_SIZE.sm,
+  value: { 
+    fontSize: THEMES.light.FONT_SIZE.sm, 
   },
-  status: {
-    color: Color.COLORS.green,
+  status: { 
+    fontSize: THEMES.light.FONT_SIZE.sm, 
   },
 });
+
+export default CardOrders;

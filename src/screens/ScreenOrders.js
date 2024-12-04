@@ -1,34 +1,62 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image } from "react-native";
-import Color from "../styles/Color";
-import { pedidos } from "../dados";
 
 import CardOrders from "../components/CardOrders";
+import THEMES from "../styles/themes";
+import { getOrder } from "../services/api";
+import Loading from "../components/Loading";
 
-export default function ScreenOrders() {
+export default function ScreenOrders(props) {
+  const [Order, setOrder] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const data = await getOrder();
+        console.log(data);
+        setOrder(data);
+      } catch (error) {
+        console.error("Erro ao carregar Order:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrder();
+  }, []);
+
+  function DetailsOrder() {
+    props.navigation.navigate("ScreensDetailsOrder");
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <View style={styles.container}>
-      {pedidos.length > 0 ? (
+      {Order.length > 0 ? (
         <FlatList
-          data={pedidos}
-          keyExtractor={(Ord) => Ord.id.toString()}
+          data={Order}
+          keyExtractor={(Ord) => Ord.order_id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <CardOrders
-              logotipo={item.logotipo}
-              nome={item.nome}
-              valor={item.vl_total}
-              dt_pedido={item.dt_pedido}
-              status={item.status}
+              icon={item.icon}
+              name={item.name}
+              total={item.total}
+              order_date={item.order_date}
+              order_id={item.order_id}
+              description_status={item.description_status}
+              onClickOrders={DetailsOrder}
             />
           )}
         />
       ) : (
         <View style={styles.empty}>
           <Image source={require("../../assets/empty.png")} />
-          <Text style={styles.text}>
-            Nenhum pedido encontrado.
-          </Text>
+          <Text style={styles.text}>Nenhum pedido encontrado.</Text>
         </View>
       )}
     </View>
@@ -38,7 +66,7 @@ export default function ScreenOrders() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.COLORS.white,
+    backgroundColor: THEMES.light.colors.white,
     paddingLeft: 12,
     paddingRight: 12,
   },
@@ -47,11 +75,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingBottom: 80,
-    backgroundColor: Color.COLORS.white,
+    backgroundColor: THEMES.light.colors.white,
   },
   text: {
-    color: Color.COLORS.dark_gray,
-    fontSize: Color.FONT_SIZE.sm,
+    color: THEMES.light.colors.dark_gray,
+    fontSize: THEMES.light.FONT_SIZE.sm,
     textAlign: "center",
     marginTop: 20,
   },
