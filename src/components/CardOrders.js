@@ -20,10 +20,11 @@ const CardOrders = (props) => {
 
   return (
     <ScrollView showsHorizontalScrollIndicator={false}>
-      <TouchableOpacity style={styles.card} onPress={() => props.onClickOrders()}>
+      <TouchableOpacity style={styles.card} onPress={() => props.onClickOrders(props.order_id)}>
         <Image source={{ uri: props.icon }} style={styles.logotipo} />
         <View style={styles.containerText}>
-          <Text style={styles.nome}>{props.name}</Text>
+          <Text style={styles.name}>{props.name}</Text>
+
           <View style={styles.containerValue}>
             <Text style={styles.value}>
               {(props.total || 0).toLocaleString("pt-BR", { 
@@ -36,8 +37,12 @@ const CardOrders = (props) => {
                 currency: "BRL" 
               })}</Text>
           </View>
+          
+          <Text style={styles.value}>
+            Pedido: {props.order_id}
+          </Text>
           <Text style={[styles.status, getStatusStyle()]}>
-            Pedido: {props.order_id} - {props.description_status}
+           {props.description_status}
           </Text>
         </View>
       </TouchableOpacity>
@@ -76,8 +81,13 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     justifyContent: "space-between", 
   },
+  name: {
+    color: "#000",
+    fontSize: THEMES.light.FONT_SIZE.md,
+  },
   value: { 
     fontSize: THEMES.light.FONT_SIZE.sm, 
+    color: THEMES.light.colors.text,
   },
   status: { 
     fontSize: THEMES.light.FONT_SIZE.sm, 
