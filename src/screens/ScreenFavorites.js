@@ -1,28 +1,85 @@
-import React from "react";
+import React, { useCallback,  useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image } from "react-native";
-import Color from "../styles/Color";
-import { restaurantes } from "../dados";
 import CardRestaurant from "../components/CardRestaurant";
+import THEMES from "../styles/themes";
+import {
+  addFavoriteRestaurant,
+  deleteFavoriteRestaurant,
+  getFavoriteRestaurant,
+} from "../services/api";
+import { useFocusEffect } from "@react-navigation/native";
+import Loading from "../components/Loading";
 
 export default function ScreenFavorites() {
- 
+  const [favoriteRestaurant, setFavoriteRestaurant] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadFavoriteRestaurant = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getFavoriteRestaurant();
+      setFavoriteRestaurant(data);
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadFavoriteRestaurant();
+    }, [loadFavoriteRestaurant])
+  );
+
+
+  const handleFavoriteAdd = async (id_company) => {
+    try {
+      await addFavoriteRestaurant(id_company); 
+      // Atualiza os favoritos após sucesso
+      loadFavoriteRestaurant();
+    } catch (error) {
+      console.error("Erro ao adicionar aos favoritos:", error);
+    }
+  };
+  
+  const handleFavoriteRemove = async (id_company) => {
+    try {
+      await deleteFavoriteRestaurant(id_company); 
+      // Atualiza os favoritos após sucesso
+      loadFavoriteRestaurant();
+     
+    } catch (error) {
+      console.error("Erro ao remover dos favoritos:", error);
+   
+    }
+  };
+  
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <View style={styles.container}>
-      {restaurantes.length > 0 ? (
+      {favoriteRestaurant.length > 0 ? (
         <FlatList
-          data={restaurantes}
-          keyExtractor={(restaurant) => restaurant.id.toString()}
+          data={favoriteRestaurant}
+          keyExtractor={(item) => item.id_company.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <CardRestaurant restaurantes={[item]} isFavorites={true} />
+            <CardRestaurant
+              restaurant={item}
+              isFavorites={true}
+              onRemove={() => handleFavoriteRemove(item.id_company)}
+              onAdd={() => handleFavoriteAdd(item.id_company)}
+            />
           )}
         />
       ) : (
         <View style={styles.empty}>
           <Image source={require("../../assets/empty.png")} />
-          <Text style={styles.text}>
-            Nenhum restaurante favorito encontrado.
-          </Text>
+          <Text style={styles.text}>Nenhum restaurante favorito encontrado.</Text>
         </View>
       )}
     </View>
@@ -32,20 +89,19 @@ export default function ScreenFavorites() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.COLORS.white,
-    paddingLeft: 12,
-    paddingRight: 12,
+    backgroundColor: THEMES.light.colors.white,
+    padding: 12,
   },
   empty: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingBottom: 80,
-    backgroundColor: Color.COLORS.white,
+    backgroundColor: THEMES.light.colors.white,
   },
   text: {
-    color: Color.COLORS.dark_gray,
-    fontSize: Color.FONT_SIZE.sm,
+    color: THEMES.light.colors.dark_gray,
+    fontSize: THEMES.light.FONT_SIZE.sm,
     textAlign: "center",
     marginTop: 20,
   },
