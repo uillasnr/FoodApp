@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,21 +7,75 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import Color from "../styles/Color";
-import { restaurante } from "../dados";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Product from "../components/Product";
+import THEMES from "../styles/themes";
+import Loading from "../components/Loading";
+import { useRoute } from "@react-navigation/native";
+import {
+  addFavoriteRestaurant,
+  deleteFavoriteRestaurant,
+  getMenu,
+} from "../services/api";
 
 export default function ScreensMenu(props) {
+  const [loading, setLoading] = useState(true);
+  const route = useRoute();
+  const { restaurantId } = route.params;
+  const [menu, setMenu] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+  var lastCategory = null;
+
+  useEffect(() => {
+    const loadGetMenu = async () => {
+      try {
+        setLoading(true);
+        const data = await getMenu(restaurantId);
+        setMenu(data);
+        setIsFavorite(data.favorite === "S");
+      } catch (error) {
+        console.error("Erro ao carregar os Menu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGetMenu();
+  }, []);
+
+  const toggleFavorite = async () => {
+    try {
+      if (isFavorite) {
+        await deleteFavoriteRestaurant(restaurantId);
+      } else {
+        await addFavoriteRestaurant(restaurantId);
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  function DetailsProducts(product_id) {
+    props.navigation.navigate("ScreensDetailsProducts", {
+      product_id,
+      id_company: menu.id_company, 
+    });
+  }
+  
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.containeFoto}>
+      <View style={styles.containePhoto}>
         <Image
-          source={restaurante.foto}
-          style={styles.foto}
-          resizeMode="contain"
+          source={{ uri: menu.photo }}
+          style={styles.photo}
+          resizeMode="cover"
         />
 
         <TouchableOpacity
@@ -31,49 +85,64 @@ export default function ScreensMenu(props) {
           <Ionicons
             name="arrow-back-circle-sharp"
             size={40}
-            color={Color.COLORS.dark_gray}
+            color={THEMES.light.colors.dark_gray}
           />
         </TouchableOpacity>
       </View>
 
       <View style={styles.header}>
         <View style={styles.headerText}>
-          <Text style={styles.name}>Nome estable</Text>
-          <Text style={styles.rate}>Nome 5,00</Text>
+          <Text style={styles.name}>{menu.name}</Text>
+          <Text style={styles.rate}>
+            Taxa de entrega:{" "}
+            {menu.delivery_fee.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </Text>
         </View>
-        <AntDesign name="heart" size={40} color={Color.COLORS.red} />
+        <TouchableOpacity onPress={toggleFavorite}>
+          {isFavorite ? (
+            <AntDesign name="heart" size={30} color={THEMES.light.colors.red} />
+          ) : (
+            <AntDesign
+              name="hearto"
+              size={30}
+              color={THEMES.light.colors.text}
+            />
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.location}>
         <FontAwesome5
           name="map-marker-alt"
           size={25}
-          color={Color.COLORS.medium_gray}
+          color={THEMES.light.colors.medium_gray}
           style={styles.ícone}
         />
-        <Text style={styles.address}>
-          Rua Rui Barbosa, 512 - Paraiso - São Paulo - SP
-        </Text>
+        <Text style={styles.address}>{menu.address}</Text>
       </View>
 
       <ScrollView>
-        {restaurante.cardapio.map((item) => {
-          return (
-            <View key={item.idCategoria} style={styles.containeProduct}>
-              <Text style={styles.category}>{item.categoria}</Text>
+        {menu.itens?.map((item) => {
+          const showCategory = lastCategory !== item.category;
+          lastCategory = item.category;
 
-              {item.itens.map((prod) => {
-                return (
-                  <Product
-                    key={prod.idProduto}
-                    idProduto={prod.idProduto}
-                    foto={prod.foto}
-                    nome={prod.nome}
-                    descricao={prod.descricao}
-                    valor={prod.valor}
-                  />
-                );
-              })}
+          return (
+            <View key={item.product_id} style={styles.containeProduct}>
+              {showCategory && (
+                <Text style={styles.category}>{item.category}</Text>
+              )}
+
+              <Product
+                idProduto={item.product_id}
+                icon={item.icon}
+                name={item.name}
+                description={item.description}
+                price={item.price}
+                onClick={DetailsProducts}
+              />
             </View>
           );
         })}
@@ -85,12 +154,10 @@ export default function ScreensMenu(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.COLORS.white,
+    backgroundColor: THEMES.light.colors.white,
   },
-  containeFoto: {
-    alignItems: "center",
-  },
-  foto: {
+  containePhoto: {},
+  photo: {
     height: 200,
   },
   containerBack: {
@@ -107,23 +174,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: Color.FONT_SIZE.md,
+    fontSize: THEMES.light.FONT_SIZE.md,
     fontWeight: "bold",
-    color: Color.COLORS.dark_gray,
+    color: THEMES.light.colors.dark_gray,
     marginBottom: 2,
   },
   rate: {
-    fontSize: Color.FONT_SIZE.md,
-    color: Color.COLORS.medium_gray,
+    fontSize: THEMES.light.FONT_SIZE.md,
+    color: THEMES.light.colors.medium_gray,
   },
   location: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: THEMES.light.colors.gray,
   },
+
   ícone: {
     borderWidth: 1,
-    borderColor: Color.COLORS.medium_gray,
+    borderColor: THEMES.light.colors.medium_gray,
     paddingLeft: 13,
     paddingTop: 8,
     borderRadius: 10,
@@ -135,15 +205,15 @@ const styles = StyleSheet.create({
   },
   address: {
     flex: 1,
-    fontSize: Color.FONT_SIZE.md,
-    color: Color.COLORS.dark_gray,
+    fontSize: THEMES.light.FONT_SIZE.md,
+    color: THEMES.light.colors.dark_gray,
   },
   containeProduct: {
     padding: 10,
   },
   category: {
-    fontSize: Color.FONT_SIZE.md,
-    color: Color.COLORS.dark_gray,
+    fontSize: THEMES.light.FONT_SIZE.md,
+    color: THEMES.light.colors.dark_gray,
     fontWeight: "bold",
     padding: 2,
   },
